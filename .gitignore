@@ -1,0 +1,14 @@
+*.o
+*.hex
+*.bin
+*.elf
+*.lst
+*.lss
+*.eep
+*.map
+*.srec
+*.bat
+*.d
+*.sym
+bootloader.m8/
+bootloader/
