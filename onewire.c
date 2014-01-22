@@ -17,7 +17,7 @@ void onewire_init()
 	onewire_port_init();
 }
 
-// Инициализирует передачу. Возвращает 1, если устройства ответили.
+// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РїРµСЂРµРґР°С‡Сѓ. Р’РѕР·РІСЂР°С‰Р°РµС‚ 1, РµСЃР»Рё СѓСЃС‚СЂРѕР№СЃС‚РІР° РѕС‚РІРµС‚РёР»Рё.
 char onewire_write_reset()
 {
 	onewire_port_init();
@@ -38,7 +38,7 @@ char onewire_write_reset()
 	return res;
 }
 
-// Читает 1 бит
+// Р§РёС‚Р°РµС‚ 1 Р±РёС‚
 char onewire_read_bit()
 {	onewire_port_init();
 	ONEWIRE_MASTER_TX(5); ONEWIRE_WAIT(5);
@@ -57,7 +57,7 @@ char onewire_read_bit()
 	return cbit;
 }
 
-// Читает байт
+// Р§РёС‚Р°РµС‚ Р±Р°Р№С‚
 unsigned char onewire_read_byte()
 {
 	unsigned char res, bit, cbit;
@@ -86,7 +86,7 @@ void onewire_write_byte(unsigned char b)
 	}
 }
 
-// Считает CRC
+// РЎС‡РёС‚Р°РµС‚ CRC
 char onewire_check_crc(unsigned char* data, unsigned char size)
 {
     uint8_t crc=0;
@@ -107,7 +107,7 @@ char onewire_check_crc(unsigned char* data, unsigned char size)
 }
 
 
-// В буфере только нули?
+// Р’ Р±СѓС„РµСЂРµ С‚РѕР»СЊРєРѕ РЅСѓР»Рё?
 char onewire_all_zeros(unsigned char* data, unsigned char size)
 {
     uint8_t i;
@@ -118,9 +118,9 @@ char onewire_all_zeros(unsigned char* data, unsigned char size)
 	return 1;
 }
 
-/*
-// Поиск устройств, num - битовая маска, по которой идёт ветвление, out - указатель на 8 байт
-// возвращает кол-во пройденных ветвений
+#ifdef ONEWIRE_SEARCH_SUPPORT
+// РџРѕРёСЃРє СѓСЃС‚СЂРѕР№СЃС‚РІ, num - Р±РёС‚РѕРІР°СЏ РјР°СЃРєР°, РїРѕ РєРѕС‚РѕСЂРѕР№ РёРґС‘С‚ РІРµС‚РІР»РµРЅРёРµ, out - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° 8 Р±Р°Р№С‚
+// РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»-РІРѕ РїСЂРѕР№РґРµРЅРЅС‹С… РІРµС‚РІРµРЅРёР№
 int onewire_search(unsigned int num, unsigned char* out)
 {
 	char res = onewire_write_reset();
@@ -158,7 +158,7 @@ int onewire_search(unsigned int num, unsigned char* out)
 	return conflicts;
 }
 
-// Итерация поиска
+// РС‚РµСЂР°С†РёСЏ РїРѕРёСЃРєР°
 void onewire_search_iter(int num, int depth, void (*f)(unsigned char* out))
 {
 	unsigned char serial[8];
@@ -169,17 +169,17 @@ void onewire_search_iter(int num, int depth, void (*f)(unsigned char* out))
 		
 	int d;
 	for (d = depth+1; d < conflicts; d++)
-		onewire_search_iter(num | (1UL << d), d, f); // углубляемся. 
+		onewire_search_iter(num | (1UL << d), d, f); // СѓРіР»СѓР±Р»СЏРµРјСЃСЏ. 
 }
 
-// Ищет все устройства. f - указатель к функции, которая вызывается для каждого устройства, out - указатель на 8 байт адреса, включая тип и CRC
+// РС‰РµС‚ РІСЃРµ СѓСЃС‚СЂРѕР№СЃС‚РІР°. f - СѓРєР°Р·Р°С‚РµР»СЊ Рє С„СѓРЅРєС†РёРё, РєРѕС‚РѕСЂР°СЏ РІС‹Р·С‹РІР°РµС‚СЃСЏ РґР»СЏ РєР°Р¶РґРѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР°, out - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° 8 Р±Р°Р№С‚ Р°РґСЂРµСЃР°, РІРєР»СЋС‡Р°СЏ С‚РёРї Рё CRC
 void onewire_search_all(void (*f)(unsigned char* out))
 {
 	onewire_search_iter(0, -1, f);
 }
-*/
+#endif
 
-// Включает мощную подтяжку к VCC
+// Р’РєР»СЋС‡Р°РµС‚ РјРѕС‰РЅСѓСЋ РїРѕРґС‚СЏР¶РєСѓ Рє VCC
 void onewire_pullup()
 {
 	if (ONEWIRE_MASTER_RX) return;

@@ -21,14 +21,14 @@ inline void metacom_send_byte(uint8_t data)
 			ONEWIRE_WAIT(METACOM_T/3); // 0
 			ONEWIRE_MASTER_TX_ON;
 			ONEWIRE_WAIT(METACOM_T*2/3);
-			// Тут не надо отпускать TX перед посылкой следующего пакета
+			// РўСѓС‚ РЅРµ РЅР°РґРѕ РѕС‚РїСѓСЃРєР°С‚СЊ TX РїРµСЂРµРґ РїРѕСЃС‹Р»РєРѕР№ СЃР»РµРґСѓСЋС‰РµРіРѕ РїР°РєРµС‚Р°
 		}
 	}
 }
 
 void metacom_send(unsigned char* key)
 {
-	ONEWIRE_MASTER_TX(METACOM_T); // Синхронизирующий бит
+	ONEWIRE_MASTER_TX(METACOM_T); // РЎРёРЅС…СЂРѕРЅРёР·РёСЂСѓСЋС‰РёР№ Р±РёС‚
 	
 	ONEWIRE_WAIT(METACOM_T/3); // 0
 	ONEWIRE_MASTER_TX(METACOM_T*2/3);
