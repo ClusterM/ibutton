@@ -3,7 +3,7 @@ PROGRAMMER_TYPE = avr109
 PROGRAMMER_PORT = com3
 
 PRG            = ibutton
-OBJ            = ibutton.o usart.o onewire.o cyfral.o usb.o metacom.o
+OBJ            = main.o usart.o onewire.o cyfral.o usb.o metacom.o
 #MCU_TARGET     = at90s2313
 #MCU_TARGET     = at90s2333
 #MCU_TARGET     = at90s4414
