@@ -249,7 +249,7 @@ int ibutton_read_byte_from_master(unsigned char* value) // Читает байт от мастер
 	{
 		TCNT1 = 0; while (!ONEWIRE_MASTER_RX && (TCNT1 < 30000)); if (TCNT1 >= 30000) return 0;
 		TCNT1 = 0; while (ONEWIRE_MASTER_RX && (TCNT1 < 30000));
-		WRITE_LOG(TCNT1);
+//		WRITE_LOG(TCNT1);
 		if (TCNT1 >= 300) return 1;
 		if (TCNT1 < 45) *value |= (1 << i);
 	}
@@ -258,7 +258,7 @@ int ibutton_read_byte_from_master(unsigned char* value) // Читает байт от мастер
 
 int ibutton_wait_for_master3(unsigned char* key)
 {
-	WRITE_LOG(0);
+//	WRITE_LOG(0);
 	wdt_reset(); 
 	set_leds(0);	// гасим светодиоды, т.к. нет времени ими мигать
 	ONEWIRE_WAIT(20) // delay 20us
@@ -275,6 +275,7 @@ int ibutton_wait_for_master3(unsigned char* key)
 		i = ibutton_read_byte_from_master(&command);
 		if (i != 2) return i;
 	}
+	WRITE_LOG(command);
 
 	if ((command == ONEWIRE_COMMAND_READ_ROM) || (command == ONEWIRE_COMMAND_READ_ROM_ALT)) // Получили запрос, шлём ключ
 	{
@@ -288,7 +289,7 @@ int ibutton_wait_for_master3(unsigned char* key)
 					ONEWIRE_MASTER_TX(35);
 				}
 				TCNT1 = 0; while (ONEWIRE_MASTER_RX && (TCNT1 < 30000));
-				WRITE_LOG(TCNT1+1);
+//				WRITE_LOG(TCNT1+1);
 				if (TCNT1 >= 300) return 1;
 			}
 		}
@@ -307,7 +308,7 @@ int ibutton_wait_for_master3(unsigned char* key)
 					ONEWIRE_MASTER_TX(35);
 				}
 				TCNT1 = 0; while (ONEWIRE_MASTER_RX && (TCNT1 < 30000));
-				WRITE_LOG(TCNT1+1);
+//				WRITE_LOG(TCNT1+1);
 				if (TCNT1 >= 300) return 1;
 				
 				TCNT1 = 0; while ((!ONEWIRE_MASTER_RX) && (TCNT1 < 30000)); if (TCNT1 >= 30000) return 0;
@@ -316,12 +317,12 @@ int ibutton_wait_for_master3(unsigned char* key)
 					ONEWIRE_MASTER_TX(35);
 				}
 				TCNT1 = 0; while (ONEWIRE_MASTER_RX && (TCNT1 < 30000));
-				WRITE_LOG(TCNT1+1);
+//				WRITE_LOG(TCNT1+1);
 				if (TCNT1 >= 300) return 1;
 				
 				TCNT1 = 0; while (!ONEWIRE_MASTER_RX && (TCNT1 < 30000)); if (TCNT1 >= 30000) return 0;
 				TCNT1 = 0; while (ONEWIRE_MASTER_RX && (TCNT1 < 30000));
-				WRITE_LOG(TCNT1);
+//				WRITE_LOG(TCNT1);
 				if (TCNT1 >= 300) return 1;
 				char d2;
 				if (TCNT1 < 45) d2 = 1; else d2 = 0; // Бит, который подтверждает мастер
@@ -359,7 +360,7 @@ void ibutton_wait_for_master(unsigned char* key)
 		while (ONEWIRE_MASTER_RX) if (TCNT1 > 30000) TCNT1 = 30000; // Пока есть сигнал
 		if (TCNT1 > 300) // Не слишком короткий
 		{
-			WRITE_LOG(TCNT1);
+//			WRITE_LOG(TCNT1);
 			ibutton_wait_for_master2(key); // Дверь заговорила, отвечаем
 		}		
 		waittime = 0;
