@@ -1,6 +1,7 @@
 #define F_CPU 8000000UL
 #define UART_BAUD 19200
 
+#define DEBUG
 
 #define LED_TOP_PORT C
 #define LED_TOP_PIN 0
