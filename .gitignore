@@ -10,5 +10,3 @@
 *.bat
 *.d
 *.sym
-bootloader.m8/
-bootloader/

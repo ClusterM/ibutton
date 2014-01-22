@@ -13,6 +13,8 @@
 #include "metacom.h"
 #include "usb.h"
 
+#define DEBUG
+
 unsigned char VEZDEHOD_KEY1[] PROGMEM = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3D};
 unsigned char VEZDEHOD_KEY2[] PROGMEM = {0x01, 0xBE, 0x40, 0x11, 0x5A, 0x36, 0x00, 0xE1};
 unsigned char VEZDEHOD_KEY3[] PROGMEM = {0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x2F};
@@ -255,7 +257,7 @@ int ibutton_wait_for_master3(unsigned char* key)
 	WRITE_LOG(0);
 	wdt_reset(); 
 	set_leds(0);	// гасим светодиоды, т.к. нет времени ими мигать
-	ONEWIRE_WAIT(20); // delay 20us
+	ONEWIRE_WAIT(20) // delay 20us
 	ONEWIRE_MASTER_TX(140);
 	TCNT1 = 0; while (ONEWIRE_MASTER_RX && (TCNT1 < 30000));
 	if (TCNT1 >= 300) return 1;
@@ -270,7 +272,7 @@ int ibutton_wait_for_master3(unsigned char* key)
 		if (i != 2) return i;
 	}
 
-	if ((command == 0x33) || (command == 0x0F)) // Получили запрос, шлём ключ
+	if ((command == ONEWIRE_COMMAND_READ_ROM) || (command == ONEWIRE_COMMAND_READ_ROM_ALT)) // Получили запрос, шлём ключ
 	{
 		for (i = 0; i < 8; i++)
 		{
@@ -283,7 +285,43 @@ int ibutton_wait_for_master3(unsigned char* key)
 				}
 				TCNT1 = 0; while (ONEWIRE_MASTER_RX && (TCNT1 < 30000));
 				WRITE_LOG(TCNT1+1);
-				if (TCNT1 >= 350) return 1;
+				if (TCNT1 >= 300) return 1;
+			}
+		}
+	} 
+	
+	if (command == ONEWIRE_COMMAND_SEARCH) // Мастер выполняет поиск!
+	{
+		for (i = 0; i < 8; i++)
+		{
+			for (bit = 0; bit < 8; bit++)
+			{
+				char d = (key[i] >> bit) & 1; // Текущий бит
+				TCNT1 = 0; while ((!ONEWIRE_MASTER_RX) && (TCNT1 < 30000)); if (TCNT1 >= 30000) return 0;
+				if (d == 0) // Если 
+				{
+					ONEWIRE_MASTER_TX(35);
+				}
+				TCNT1 = 0; while (ONEWIRE_MASTER_RX && (TCNT1 < 30000));
+				WRITE_LOG(TCNT1+1);
+				if (TCNT1 >= 300) return 1;
+				
+				TCNT1 = 0; while ((!ONEWIRE_MASTER_RX) && (TCNT1 < 30000)); if (TCNT1 >= 30000) return 0;
+				if (d != 0) 
+				{
+					ONEWIRE_MASTER_TX(35);
+				}
+				TCNT1 = 0; while (ONEWIRE_MASTER_RX && (TCNT1 < 30000));
+				WRITE_LOG(TCNT1+1);
+				if (TCNT1 >= 300) return 1;
+				
+				TCNT1 = 0; while (!ONEWIRE_MASTER_RX && (TCNT1 < 30000)); if (TCNT1 >= 30000) return 0;
+				TCNT1 = 0; while (ONEWIRE_MASTER_RX && (TCNT1 < 30000));
+				WRITE_LOG(TCNT1);
+				if (TCNT1 >= 300) return 1;
+				char d2;
+				if (TCNT1 < 45) d2 = 1; else d2 = 0; // Бит, который подтверждает мастер
+				if (d != d2) return 0; // Если они не совпадают, выходим
 			}
 		}
 	} 
@@ -311,15 +349,16 @@ void ibutton_wait_for_master(unsigned char* key)
 			wdt_reset();
 			update_leds();
 			if (BUTTON_PRESSED || USB_POWERED) return;
-		}; 
+		};
+		if (TCNT1 >= 30000) continue;
 		TCNT1 = 0;	
 		while (ONEWIRE_MASTER_RX) if (TCNT1 > 30000) TCNT1 = 30000; // Пока есть сигнал
 		if (TCNT1 > 300) // Не слишком короткий
 		{
 			WRITE_LOG(TCNT1);
 			ibutton_wait_for_master2(key); // Дверь заговорила, отвечаем
-			waittime = 0;
 		}		
+		waittime = 0;
 	}
 	ibutton_wait_for_master2(key); // Не дождались, начинаем сами
 }
@@ -479,26 +518,30 @@ int main (void)
 				}
 			}
 			t++;
-			if (t == 5) // Если долго держим кнопку, то пишем лог для отладки
+			if (t == 5) // Если долго держим кнопку, то пишем лог для отладки или переходим в режим вездехода (в зависимости от директивы DEBUG)
 			{
-				show_digit(0);
-				/*
+				show_digit(0); // Показываем 0
+#ifdef DEBUG								
 				eeprom_write_byte((void*)1, debug_log_size);				
-				eeprom_write_block((char*)debug_log, (void*)256, debug_log_size*2);		
-				*/
-				debug_log_size = 0;
-				for (i = 0;i < 500; i++)
+				eeprom_write_block((char*)debug_log, (void*)256, debug_log_size*2);
+#endif
+				
+				debug_log_size = 0; // Обнуляем debug-log
+				for (i = 0;i < 500; i++) // Показываем 0 в течении некоторого полусекунды
 				{
 					wdt_reset();
 					update_leds();
 					_delay_ms(1);					
 				}
+#ifndef DEBUG
 				vezdehod_mode = 1; // Включаем режим вездеход-ключей!
 				current_key = 0;
-/*				
+#endif
+/*
 				set_leds(0);
 				while(1);
-*/				
+*/
+				
 			}
 		} while (BUTTON_PRESSED);
 

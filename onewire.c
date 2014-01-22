@@ -118,7 +118,7 @@ char onewire_all_zeros(unsigned char* data, unsigned char size)
 	return 1;
 }
 
-
+/*
 // Поиск устройств, num - битовая маска, по которой идёт ветвление, out - указатель на 8 байт
 // возвращает кол-во пройденных ветвений
 int onewire_search(unsigned int num, unsigned char* out)
@@ -177,6 +177,7 @@ void onewire_search_all(void (*f)(unsigned char* out))
 {
 	onewire_search_iter(0, -1, f);
 }
+*/
 
 // Включает мощную подтяжку к VCC
 void onewire_pullup()
